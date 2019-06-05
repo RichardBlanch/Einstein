@@ -2,6 +2,7 @@ import XCTest
 @testable import Einstein
 
 final class EinsteinTests: XCTestCase {
+    /*
     func testExample() {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct
@@ -12,4 +13,5 @@ final class EinsteinTests: XCTestCase {
     static var allTests = [
         ("testExample", testExample),
     ]
+   */
 }

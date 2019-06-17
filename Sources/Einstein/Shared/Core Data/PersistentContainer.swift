@@ -26,14 +26,20 @@ public class PersistentContainer: NSPersistentContainer {
             case couldNotCastToNSBatchDeleteResult
             case couldNotCastToNSManagedObjectID
         }
+        
+        case couldNotFindModelName
     }
 
-    public static let shared = PersistentContainer(for: nil)
+    public static let shared = try? PersistentContainer(for: Bundle.main)
     private static let batchSize = 256
     
-    private convenience init(for bundle: Bundle? = nil) {
+    private convenience init(for bundle: Bundle? = Bundle.main) throws {
         let bundle = bundle ?? PersistentContainer.findBundle()
-        let modelName = PersistentContainer.findModelName(in: bundle) ?? "GrioExample" // TODO: Fix this
+
+        guard let modelName = PersistentContainer.findModelName(in: bundle) else {
+            throw Error.couldNotFindModelName
+        }
+        
         self.init(name: modelName)
 
         loadPersistentStores(completionHandler: { (storeDescription, error) in

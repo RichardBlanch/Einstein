@@ -1,6 +1,5 @@
 //
 //  JSONSerialization.swift
-//  GrioCommon iOS
 //
 //  Created by Richard Blanchard on 5/16/19.
 //

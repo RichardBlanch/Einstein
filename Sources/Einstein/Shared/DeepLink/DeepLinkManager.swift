@@ -26,6 +26,6 @@ open class DeepLinkManager<T: DeepLinkable> {
 // MARK: - Example
 
 /*
-class GrioDeepLinkManager: DeepLinkManager<GrioDeepLink> {
+class EinsteinDeepLinkManager: DeepLinkManager<EinsteinDeepLink> {
 }
 */

@@ -1,6 +1,5 @@
 //
 //  DispatchQueue+Extension.swift
-//  GrioCommon iOS
 //
 //  Created by Richard Blanchard on 5/14/19.
 //

@@ -16,8 +16,8 @@ public class APIRequestLoader {
     /// - Parameters:
     ///   - apiRequest: The kind of APIRequest we want to load. See FetchStoriesAPIRequest as an example.
     ///   - urlSession: This will default to URLSession.shared. If you are using this within a test suite, please override with URLSession.mockSession (see documentation there)
-    ///   - completionHandler: A closure to call when we fetch our request. We will have a Typed result of the APIRequest's associateType for ResponseDataType OR a GrioError.
-    public static func loadAPIRequest<Request: APIRequest>(_ apiRequest: Request, using urlSession: URLSession = URLSession.shared, completionHandler: @escaping ( Result<Request.Output, GrioError>) -> Void) {
+    ///   - completionHandler: A closure to call when we fetch our request. We will have a Typed result of the APIRequest's associateType for ResponseDataType OR a EinsteinError.
+    public static func loadAPIRequest<Request: APIRequest>(_ apiRequest: Request, using urlSession: URLSession = URLSession.shared, completionHandler: @escaping ( Result<Request.Output, EinsteinError>) -> Void) {
         do {
             let urlRequest = try apiRequest.makeRequest()
             let task = try self.task(apiRequest, urlRequest: urlRequest, using: urlSession, completionHandler: completionHandler)
@@ -41,15 +41,15 @@ public class APIRequestLoader {
         
     }
     
-    private static func task<Request: APIRequest>(_ apiRequest: Request, urlRequest: URLRequest, using urlSession: URLSession = URLSession.shared, completionHandler: @escaping ( Result<Request.Output, GrioError>) -> Void) throws -> URLSessionDataTask {
+    private static func task<Request: APIRequest>(_ apiRequest: Request, urlRequest: URLRequest, using urlSession: URLSession = URLSession.shared, completionHandler: @escaping ( Result<Request.Output, EinsteinError>) -> Void) throws -> URLSessionDataTask {
         
         let throttleTime = apiRequest.throttle ?? 0.0
         
         let dataTask = urlSession.dataTask(with: urlRequest) {  [unowned requestMonitor, throttleTime, urlRequest]  data, response, error in
             requestMonitor.remove(url: urlRequest.url, with: throttleTime)
             
-            if let grioError = self.grioError(from: data, error: error, response: response) {
-                completionHandler(.failure(grioError))
+            if let einsteinError = self.einsteinError(from: data, error: error, response: response) {
+                completionHandler(.failure(einsteinError))
                 return
             }
             
@@ -64,19 +64,19 @@ public class APIRequestLoader {
         return dataTask
     }
     
-    private static func grioError(from data: Data?, error: Error?, response: URLResponse?) -> GrioError? {
-        let grioError: GrioError?
+    private static func einsteinError(from data: Data?, error: Error?, response: URLResponse?) -> EinsteinError? {
+        let einsteinError: EinsteinError?
         
         if error != nil {
-            grioError = .genericError(error)
-        } else if let httpURLResponse = response as? HTTPURLResponse, (400...499) ~=  httpURLResponse.statusCode {
-            grioError = .httpURLResponseError(httpURLResponse)
+            einsteinError = .genericError(error)
+        } else if let httpURLResponse = response as? HTTPURLResponse, (400...499) ~= httpURLResponse.statusCode {
+            einsteinError = .httpURLResponseError(httpURLResponse)
         } else if data == nil {
-            grioError = .noData
+            einsteinError = .noData
         } else {
-            grioError = nil
+            einsteinError = nil
         }
         
-        return grioError
+        return einsteinError
     }
 }

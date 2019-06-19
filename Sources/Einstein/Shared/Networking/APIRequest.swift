@@ -45,7 +45,7 @@ public protocol APIRequest {
     /// If you want to explicitally build your `URLRequest`, implement this method. Otherwise, the conforming protocol will have a default implementation that derives the URLRequest from the other properties on the protocol
     ///
     /// - Returns: A `URLRequest` which will be sent to the server.
-    /// - Throws: A `GrioError` - Such as `GrioError.couldNotCreateRequest`
+    /// - Throws: A `EinsteinError` - Such as `EinsteinError.couldNotCreateRequest`
     func makeRequest() throws -> URLRequest
     /// An oppurtunity to parse your response. If you want to use a custom decoder, you can implement this method yourself. Otherwise your `APIRequest` will use the default implementation used in this extension
     ///
@@ -72,7 +72,7 @@ public extension APIRequest {
         urlComponents.queryItems = queryItems
         
         guard let url = urlComponents.url?.appendingPathComponent(path) else {
-            throw GrioError.couldNotCreateRequest
+            throw EinsteinError.couldNotCreateRequest
         }
         
         var urlRequest = URLRequest(url: url)
@@ -108,9 +108,9 @@ public extension APIRequest {
         return nil
     }
     
-    public func publisher() -> APIRequestPublisher<Self> {
-        return APIRequestPublisher(request: self)
-    }
+//    public func publisher() -> APIRequestPublisher<Self> {
+//        return APIRequestPublisher(request: self)
+//    }
 }
 
 /// MARK: - Example

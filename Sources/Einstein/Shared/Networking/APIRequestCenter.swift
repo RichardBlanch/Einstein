@@ -8,27 +8,33 @@
 import Combine
 import Foundation
 
-public struct APIRequestPublisher<Request: APIRequest>: Publisher {
-    
-    
+
+
+public class APIRequestPublisher<Request: APIRequest>: Publisher {
     public typealias Output = Request.Output
     public typealias Failure = Request.Error
     
-    private let request: Request
-    
-    init(request: Request) {
-        self.request = request
-    }
-    
     public func receive<S>(subscriber: S) where S : Subscriber, APIRequestPublisher.Failure == S.Failure, APIRequestPublisher.Output == S.Input {
-        APIRequestLoader.loadAPIRequest(request) { (result) in
+        APIRequestLoader.loadAPIRequest(request, using: urlSession) { (result) in
             do {
-                let result = try result.get()
-                subscriber.receive(result)
+                let subscriptionType = try result.get()
+                subscriber.receive(subscriptionType)
+                subscriber.receive(completion: .finished)
             } catch {
-                self.print("")
+                guard let error = error as? Failure else { fatalError() }
+                subscriber.receive(completion: Subscribers.Completion.failure(error))
             }
         }
-        
     }
+    
+    
+    
+    private let request: Request
+    private unowned let urlSession: URLSession
+    
+    init(request: Request, urlSession: URLSession) {
+        self.request = request
+        self.urlSession = urlSession
+    }
+    
 }

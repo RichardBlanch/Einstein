@@ -108,8 +108,9 @@ public extension APIRequest {
         return nil
     }
     
-    public func publisher() -> APIRequestPublisher<Self> {
-        return APIRequestPublisher(request: self)
+    func publisher() -> APIRequestPublisher<Self> {
+        // TODO: Fix shared part
+        return APIRequestPublisher(request: self, urlSession: URLSession.shared)
     }
 }
 

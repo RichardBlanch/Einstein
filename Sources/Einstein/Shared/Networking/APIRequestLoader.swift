@@ -17,7 +17,7 @@ public class APIRequestLoader {
     ///   - apiRequest: The kind of APIRequest we want to load. See FetchStoriesAPIRequest as an example.
     ///   - urlSession: This will default to URLSession.shared. If you are using this within a test suite, please override with URLSession.mockSession (see documentation there)
     ///   - completionHandler: A closure to call when we fetch our request. We will have a Typed result of the APIRequest's associateType for ResponseDataType OR a GrioError.
-    public static func loadAPIRequest<Request: APIRequest>(_ apiRequest: Request, using urlSession: URLSession = URLSession.shared, completionHandler: @escaping ( Result<Request.ResponseDataType, GrioError>) -> Void) {
+    public static func loadAPIRequest<Request: APIRequest>(_ apiRequest: Request, using urlSession: URLSession = URLSession.shared, completionHandler: @escaping ( Result<Request.Output, GrioError>) -> Void) {
         do {
             let urlRequest = try apiRequest.makeRequest()
             let task = try self.task(apiRequest, urlRequest: urlRequest, using: urlSession, completionHandler: completionHandler)
@@ -41,7 +41,7 @@ public class APIRequestLoader {
         
     }
     
-    private static func task<Request: APIRequest>(_ apiRequest: Request, urlRequest: URLRequest, using urlSession: URLSession = URLSession.shared, completionHandler: @escaping ( Result<Request.ResponseDataType, GrioError>) -> Void) throws -> URLSessionDataTask {
+    private static func task<Request: APIRequest>(_ apiRequest: Request, urlRequest: URLRequest, using urlSession: URLSession = URLSession.shared, completionHandler: @escaping ( Result<Request.Output, GrioError>) -> Void) throws -> URLSessionDataTask {
         
         let throttleTime = apiRequest.throttle ?? 0.0
         

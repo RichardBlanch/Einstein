@@ -3,19 +3,23 @@
 //
 //
 
+import Combine
 import Foundation
 
 /// A protocol for making an API Request. Please see FetchStoriesAPIRequest which is used as an example
 /// Based off of: https://developer.apple.com/videos/play/wwdc2018/417/
-public protocol APIRequest {
-    associatedtype RequestDataType
-    associatedtype ResponseDataType: Decodable
+///
+/// 
+public protocol APIRequest: Publisher {
+    associatedtype Input
+    associatedtype Output: Decodable
+    associatedtype Error: Swift.Error
     
     /// This will be used to set our base url when building our `URLRequest`.
     var api: API { get }
     
     /// Relevant information for our request. Information that can be substitued into our url, body, path, or headers. This should be passed into the `APIRequest` during initialization
-    var requestPayload: RequestDataType { get }
+    var requestPayload: Input { get }
     
     /// The path for our `APIRequest`. This will be used to build our `URL`
     var path: String { get }
@@ -48,7 +52,7 @@ public protocol APIRequest {
     /// - Parameter data: Data returned from your service
     /// - Returns: The type which your protocol declares as its ResponseDataType
     /// - Throws: A DecodingError if we could not create our ResponseDataType from the data returned
-    func parseResponse(from data: Data) throws -> ResponseDataType
+    func parseResponse(from data: Data) throws -> Output
 }
 
 public extension APIRequest {
@@ -80,8 +84,8 @@ public extension APIRequest {
         return urlRequest
     }
     
-    func parseResponse(from data: Data) throws -> ResponseDataType {
-        return try JSONDecoder().decode(ResponseDataType.self, from: data)
+    func parseResponse(from data: Data) throws -> Output {
+        return try JSONDecoder().decode(Output.self, from: data)
     }
     
     var method: HTTPMethod {
@@ -154,5 +158,4 @@ public extension APIRequest {
     }
  }
  */
-
 

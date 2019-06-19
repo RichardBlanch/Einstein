@@ -18,8 +18,12 @@ public class APIRequestPublisher<Request: APIRequest>: Publisher {
         APIRequestLoader.loadAPIRequest(request, using: urlSession) { (result) in
             do {
                 let subscriptionType = try result.get()
-                subscriber.receive(subscriptionType)
-                subscriber.receive(completion: .finished)
+                let demand = subscriber.receive(subscriptionType)
+
+                if demand != .unlimited {
+                    subscriber.receive(completion: .finished)
+                }
+
             } catch {
                 guard let error = error as? Failure else { fatalError() }
                 subscriber.receive(completion: Subscribers.Completion.failure(error))

@@ -7,7 +7,7 @@ import Foundation
 
 // Feature Flags for your app.
 /// Should load this from Network or Config File.
-/// See GrioFeatureFlags as an example.
+/// See EinsteinExampleFeatureFlags as an example.
 public protocol FeatureFlags {
     /// Use to configure your feature flags from a dictionary
     init(from jsonObject: JSONObject)
@@ -35,7 +35,7 @@ public extension JSONObject where Key == String {
 // MARK: - Example
 
 /*
-class GrioExampleFeatureFlags: FeatureFlags {
+class EinsteinExampleFeatureFlags: FeatureFlags {
     let color: UIColor
     
     required init(from jsonObject: JSONObject) {

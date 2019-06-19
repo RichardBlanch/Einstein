@@ -20,7 +20,7 @@ public protocol DeepLinkable {
 
 /*
  
-struct GrioDeepLink: DeepLinkable {
+struct EinsteinDeepLink: DeepLinkable {
     typealias HostType = Host
     
     enum Host: String {

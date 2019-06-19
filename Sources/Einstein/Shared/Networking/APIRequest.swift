@@ -48,11 +48,8 @@ public protocol APIRequest {
     /// - Throws: A `EinsteinError` - Such as `EinsteinError.couldNotCreateRequest`
     func makeRequest() throws -> URLRequest
     /// An oppurtunity to parse your response. If you want to use a custom decoder, you can implement this method yourself. Otherwise your `APIRequest` will use the default implementation used in this extension
-    ///
-    /// - Parameter data: Data returned from your service
-    /// - Returns: The type which your protocol declares as its ResponseDataType
-    /// - Throws: A DecodingError if we could not create our ResponseDataType from the data returned
-    func parseResponse(from data: Data) throws -> Output
+    
+    var jsonDecoder: JSONDecoder { get }
 }
 
 public extension APIRequest {
@@ -84,10 +81,6 @@ public extension APIRequest {
         return urlRequest
     }
     
-    func parseResponse(from data: Data) throws -> Output {
-        return try JSONDecoder().decode(Output.self, from: data)
-    }
-    
     var method: HTTPMethod {
         return .get
     }
@@ -106,6 +99,10 @@ public extension APIRequest {
     
     var throttle: TimeInterval? {
         return nil
+    }
+    
+    var jsonDecoder: JSONDecoder {
+        return JSONDecoder.timeIntervalSince1970Decoder
     }
     
     func publisher() -> APIRequestPublisher<Self> {

@@ -108,9 +108,9 @@ public extension APIRequest {
         return nil
     }
     
-//    public func publisher() -> APIRequestPublisher<Self> {
-//        return APIRequestPublisher(request: self)
-//    }
+    public func publisher() -> APIRequestPublisher<Self> {
+        return APIRequestPublisher(request: self)
+    }
 }
 
 /// MARK: - Example

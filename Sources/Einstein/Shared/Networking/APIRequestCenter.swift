@@ -8,12 +8,11 @@
 import Combine
 import Foundation
 
-@available(iOS 13.0, *)
-struct APIRequestPublisher<Request: APIRequest>: Publisher {
+public struct APIRequestPublisher<Request: APIRequest>: Publisher {
     
     
-    typealias Output = Request.Output
-    typealias Failure = Request.Error
+    public typealias Output = Request.Output
+    public typealias Failure = Request.Error
     
     private let request: Request
     
@@ -21,7 +20,7 @@ struct APIRequestPublisher<Request: APIRequest>: Publisher {
         self.request = request
     }
     
-    func receive<S>(subscriber: S) where S : Subscriber, APIRequestPublisher.Failure == S.Failure, APIRequestPublisher.Output == S.Input {
+    public func receive<S>(subscriber: S) where S : Subscriber, APIRequestPublisher.Failure == S.Failure, APIRequestPublisher.Output == S.Input {
         APIRequestLoader.loadAPIRequest(request) { (result) in
             do {
                 let result = try result.get()
@@ -31,14 +30,5 @@ struct APIRequestPublisher<Request: APIRequest>: Publisher {
             }
         }
         
-    }
-    
-    
-}
-
-extension APIRequest {
-    @available(iOS 13.0, *)
-    func publisher() -> APIRequestPublisher<Self> {
-        return APIRequestPublisher(request: self)
     }
 }

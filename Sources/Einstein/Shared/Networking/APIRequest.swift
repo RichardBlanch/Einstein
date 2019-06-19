@@ -107,6 +107,10 @@ public extension APIRequest {
     var throttle: TimeInterval? {
         return nil
     }
+    
+    public func publisher() -> APIRequestPublisher<Self> {
+        return APIRequestPublisher(request: self)
+    }
 }
 
 /// MARK: - Example

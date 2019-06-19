@@ -12,7 +12,7 @@ import Foundation
 
 public class APIRequestPublisher<Request: APIRequest>: Publisher {
     public typealias Output = Request.Output
-    public typealias Failure = Request.Error
+    public typealias Failure = Request.Failure
     
     public func receive<S>(subscriber: S) where S : Subscriber, APIRequestPublisher.Failure == S.Failure, APIRequestPublisher.Output == S.Input {
         APIRequestLoader.loadAPIRequest(request, using: urlSession) { (result) in

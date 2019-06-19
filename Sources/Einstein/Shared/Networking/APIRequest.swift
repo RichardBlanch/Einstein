@@ -13,7 +13,7 @@ import Foundation
 public protocol APIRequest {
     associatedtype Input
     associatedtype Output: Decodable
-    associatedtype Error: Swift.Error
+    associatedtype Failure: Error
     
     /// This will be used to set our base url when building our `URLRequest`.
     var api: API { get }

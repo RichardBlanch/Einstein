@@ -10,7 +10,7 @@ import Foundation
 /// Based off of: https://developer.apple.com/videos/play/wwdc2018/417/
 ///
 /// 
-public protocol APIRequest: Publisher {
+public protocol APIRequest {
     associatedtype Input
     associatedtype Output: Decodable
     associatedtype Error: Swift.Error

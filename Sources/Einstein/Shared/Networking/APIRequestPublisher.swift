@@ -8,9 +8,7 @@
 import Combine
 import Foundation
 
-
-
-public class APIRequestPublisher<Request: APIRequest>: Publisher {
+public struct APIRequestPublisher<Request: APIRequest>: Publisher {
     public typealias Output = Request.Output
     public typealias Failure = Request.Failure
     
@@ -26,12 +24,7 @@ public class APIRequestPublisher<Request: APIRequest>: Publisher {
     }
     
     public func receive<S>(subscriber: S) where S : Subscriber, APIRequestPublisher.Failure == S.Failure, APIRequestPublisher.Output == S.Input {
-        let timer = Timer(fire: Date(), interval: timeInterval, repeats: true) { [weak self] _ in
-            guard let self = self else {
-                subscriber.receive(completion: .finished)
-                return
-            }
-            
+        let timer = Timer(fire: Date(), interval: timeInterval, repeats: true) { _ in
             _ = APIRequestLoader
                 .load(request: self.request)
                 .sink { _ = subscriber.receive($0)  }

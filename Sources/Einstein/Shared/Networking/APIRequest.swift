@@ -98,7 +98,6 @@ public extension APIRequest {
     }
 
     func publisher(timeInterval: TimeInterval, for urlSession: URLSession) -> APIRequestPublisher<Self> {
-        // TODO: Fix shared part
         return APIRequestPublisher(request: self, urlSession: urlSession, timeInterval: timeInterval)
     }
     

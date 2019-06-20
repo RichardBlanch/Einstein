@@ -26,16 +26,17 @@ public class APIRequestPublisher<Request: APIRequest>: Publisher {
     }
     
     public func receive<S>(subscriber: S) where S : Subscriber, APIRequestPublisher.Failure == S.Failure, APIRequestPublisher.Output == S.Input {
-        let timer = Timer.scheduledTimer(withTimeInterval: timeInterval, repeats: true) { [weak self] (_) in
+        let timer = Timer(fire: Date(), interval: timeInterval, repeats: true) { [weak self] _ in
             guard let self = self else {
                 subscriber.receive(completion: .finished)
                 return
             }
-
+            
             _ = APIRequestLoader
                 .load(request: self.request)
                 .sink { _ = subscriber.receive($0)  }
         }
+        
         RunLoop.current.add(timer, forMode: .common)
     }
 }

@@ -3,9 +3,9 @@
 //
 //
 
+import Combine
 import Foundation
 import CoreData
-
 
 /*
 Use `PersistentContainer.shared` as your 'Core Data Stack'
@@ -27,6 +27,7 @@ public class PersistentContainer: NSPersistentContainer {
             case couldNotCastToNSManagedObjectID
         }
         
+        case unknown
         case couldNotFindModelName
     }
 
@@ -68,6 +69,35 @@ public class PersistentContainer: NSPersistentContainer {
     
     public func fetch<FetchableObject: NSFetchRequestResult>(_ fetchRequest: NSFetchRequest<FetchableObject>) throws -> [FetchableObject] {
         return try viewContext.fetch(fetchRequest)
+    }
+    
+    public func persistObjectFuture<ManagedObjectConvertible: NSManagedObjectConvertible>(_ object: ManagedObjectConvertible) -> Publishers.Future<Void, Error> {
+        return Publishers.Future { [weak self] (completion) in
+            guard let self = self else { fatalError() }
+
+            do {
+                try self.persistObject(object)
+                completion(.success(()))
+            } catch let error as PersistentContainer.Error {
+                completion(.failure(error))
+            } catch {
+                completion(.failure(.unknown))
+            }
+        }
+    }
+    
+    public func persistObjectsFuture<ManagedObjectConvertible: NSManagedObjectConvertible>(_ objects: [ManagedObjectConvertible]) -> Publishers.Future<Void, Error> {
+        return Publishers.Future { [weak self] (completion) in
+            guard let self = self else { fatalError() }
+            do {
+                try self.persistObjects(objects)
+                completion(.success(()))
+            } catch let error as PersistentContainer.Error {
+                completion(.failure(error))
+            } catch {
+                completion(.failure(.unknown))
+            }
+        }
     }
     
     public func persistObject<ManagedObjectConvertible: NSManagedObjectConvertible>(_ object: ManagedObjectConvertible) throws {

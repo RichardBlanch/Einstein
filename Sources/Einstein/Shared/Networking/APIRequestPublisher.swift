@@ -17,7 +17,7 @@ public class APIRequestPublisher<Request: APIRequest>: Publisher {
     private let request: Request
     private unowned let urlSession: URLSession
     private let timeInterval: TimeInterval
-    private unowned let dispatchQueue = DispatchQueue(from: StringKey(rawValue: "com.APIRequestPublisher.queue"))
+    private let dispatchQueue = DispatchQueue(from: StringKey(rawValue: "com.APIRequestPublisher.queue"))
     
     init(request: Request, urlSession: URLSession, timeInterval: TimeInterval) {
         self.request = request

@@ -38,10 +38,6 @@ public protocol APIRequest {
     /// Used to build the body of our `URLRequest`. Will default to nil
     var body: Data? { get }
     
-    
-    /// If you want to throttle your network request every X seconds. Return X. If you don't want to throttle, return nil. Will default to nil
-    var throttle: TimeInterval? { get }
-    
     /// If you want to explicitally build your `URLRequest`, implement this method. Otherwise, the conforming protocol will have a default implementation that derives the URLRequest from the other properties on the protocol
     ///
     /// - Returns: A `URLRequest` which will be sent to the server.
@@ -96,18 +92,18 @@ public extension APIRequest {
     var body: Data? {
         return nil
     }
-    
-    var throttle: TimeInterval? {
-        return nil
-    }
-    
+
     var jsonDecoder: JSONDecoder {
         return JSONDecoder.timeIntervalSince1970Decoder
     }
-    
-    func publisher() -> APIRequestPublisher<Self> {
+
+    func publisher(timeInterval: TimeInterval, for urlSession: URLSession) -> APIRequestPublisher<Self> {
         // TODO: Fix shared part
-        return APIRequestPublisher(request: self, urlSession: URLSession.shared)
+        return APIRequestPublisher(request: self, urlSession: urlSession, timeInterval: timeInterval)
+    }
+    
+    func future() -> APIRequestLoader.Future<Self.Output, Self.Failure> {
+        return APIRequestLoader.load(request: self)
     }
 }
 

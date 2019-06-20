@@ -34,7 +34,6 @@ public class APIRequestLoader {
             } catch {
                 completion(.failure(error as! Request.Failure))
             }
-            
         }
     }
 }

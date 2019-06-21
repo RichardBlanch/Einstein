@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension JSONDecoder {
+public extension JSONDecoder {
     static let timeIntervalSince1970Decoder: JSONDecoder = {
         var jsonDecoder = JSONDecoder()
         jsonDecoder.dateDecodingStrategy = .millisecondsSince1970

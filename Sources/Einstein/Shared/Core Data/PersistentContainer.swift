@@ -30,14 +30,10 @@ public class PersistentContainer: NSPersistentContainer {
         case unknown
         case couldNotFindModelName
     }
-
-    public static let shared = try? PersistentContainer(for: Bundle.main)
     private static let batchSize = 256
     
-    private convenience init(for bundle: Bundle = Bundle.main) throws {
-        let bundle = PersistentContainer.findBundle() ?? Bundle.main
-
-        guard let modelName = PersistentContainer.findModelName(in: bundle!) else {
+    convenience init(for bundle: Bundle) throws {
+        guard let modelName = PersistentContainer.findModelName(in: bundle) else {
             throw Error.couldNotFindModelName
         }
         
@@ -194,12 +190,6 @@ private extension PersistentContainer {
 // MARK: - Helpers to Find Core Data Model
 
 private extension PersistentContainer {
-    static func findBundle() -> Bundle?? {
-        let bundleContaingCoreDataModel = Bundle.allBundles.first(where: { $0.urls(forResourcesWithExtension: "momd", subdirectory: nil) != nil })
-        
-        return bundleContaingCoreDataModel
-    }
-    
     static func findModelName(in bundle: Bundle) -> String? {
         var relativeUrlString = bundle.urls(forResourcesWithExtension: "momd", subdirectory: nil)?.first?.relativeString
         relativeUrlString = relativeUrlString?.replacingOccurrences(of: ".momd", with: "")

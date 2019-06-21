@@ -29,9 +29,11 @@ public class PersistentContainer: NSPersistentContainer {
         
         case unknown
         case couldNotFindModelName
+        case couldNotLoadPersistentStore(error: Swift.Error)
     }
 
     private static let batchSize = 256
+    private let dispatchQueue = DispatchQueue(from: StringKey.value(for: self))
     
     public convenience init(for bundle: Bundle) throws {
         guard let modelName = PersistentContainer.findModelName(in: bundle) else {
@@ -39,18 +41,30 @@ public class PersistentContainer: NSPersistentContainer {
         }
         
         self.init(name: modelName)
+        
+        var thrownError: Error?
 
-        loadPersistentStores(completionHandler: { (storeDescription, error) in
-            guard error == nil else {
-                assertionFailure("Error: \(String(describing: error))")
+        try dispatchQueue.sync { [weak self] in
+            guard let self = self else {
+                thrownError = Error.unknown
                 return
             }
-        })
-        
-        viewContext.automaticallyMergesChangesFromParent = true
-        viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-        viewContext.undoManager = nil
-        viewContext.shouldDeleteInaccessibleFaults = true
+            
+            self.loadPersistentStores(completionHandler: { (storeDescription, error) in
+                if error != nil {
+                    thrownError = .couldNotLoadPersistentStore(error: error!)
+                }
+            })
+            
+            if let error = thrownError {
+                throw error
+            }
+            
+            viewContext.automaticallyMergesChangesFromParent = true
+            viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+            viewContext.undoManager = nil
+            viewContext.shouldDeleteInaccessibleFaults = true
+        }
     }
     
     // MARK: - Helper

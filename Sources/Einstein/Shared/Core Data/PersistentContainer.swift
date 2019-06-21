@@ -30,9 +30,10 @@ public class PersistentContainer: NSPersistentContainer {
         case unknown
         case couldNotFindModelName
     }
+
     private static let batchSize = 256
     
-    convenience init(for bundle: Bundle) throws {
+    public convenience init(for bundle: Bundle) throws {
         guard let modelName = PersistentContainer.findModelName(in: bundle) else {
             throw Error.couldNotFindModelName
         }

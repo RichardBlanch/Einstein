@@ -3,6 +3,7 @@
 //
 //
 
+#if os(iOS)
 import Foundation
 import CoreData
 import UIKit
@@ -68,3 +69,4 @@ extension FetchedResultsControllerTableViewController {
         tableView.endUpdates()
     }
 }
+#endif

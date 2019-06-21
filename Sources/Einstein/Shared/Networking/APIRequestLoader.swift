@@ -6,9 +6,6 @@
 import Combine
 import Foundation
 
-
-
-
 /// A class to load our APIRequests
 /// Based off of: https://developer.apple.com/videos/play/wwdc2018/417/
 public class APIRequestLoader {

@@ -3,6 +3,7 @@
 //
 //
 
+#if os(iOS)
 import Foundation
 
 /// A type that can generated deepLinks given a DeepLinkable type. Meant to be subclassed.
@@ -22,6 +23,7 @@ open class DeepLinkManager<T: DeepLinkable> {
         return T(from: components)
     }
 }
+#endif
 
 // MARK: - Example
 

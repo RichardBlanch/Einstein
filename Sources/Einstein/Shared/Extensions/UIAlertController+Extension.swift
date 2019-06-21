@@ -3,6 +3,7 @@
 //
 //
 
+#if os(iOS)
 import Foundation
 import UIKit
 
@@ -19,6 +20,7 @@ public extension UIAlertController {
         return alertController
     }
 }
+#endif
 
 // MARK: - Example
 

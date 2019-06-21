@@ -3,6 +3,7 @@
 //
 //
 
+#if os(iOS)
 import Foundation
 import UIKit
 
@@ -15,6 +16,7 @@ public protocol DeepLinkable {
     var host: HostType { get }
     func location() -> UIViewController
 }
+#endif
 
 // MARK: - Example
 

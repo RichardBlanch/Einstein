@@ -1,4 +1,9 @@
+#if os(iOS)
 import XCTest
+#endif
+
+
+#if os(iOS)
 @testable import Einstein
 
 final class EinsteinTests: XCTestCase {
@@ -15,3 +20,4 @@ final class EinsteinTests: XCTestCase {
     ]
    */
 }
+#endif

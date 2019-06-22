@@ -13,7 +13,14 @@ public struct StringKey: RawRepresentable {
     public init(rawValue: String) {
         self.rawValue = rawValue
     }
+    
+    static func value<T>(for type: T) -> StringKey {
+        let descriptor = "com." + String(describing: type)
+
+        return StringKey(rawValue: descriptor)
+    }
 }
+
 
 // MARK: - Example
 

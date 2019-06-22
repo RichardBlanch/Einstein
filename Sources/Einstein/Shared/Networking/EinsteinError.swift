@@ -1,5 +1,5 @@
 //
-//  GrioError.swift
+//  EinsteinError.swift
 //
 //
 
@@ -18,7 +18,7 @@ extension AlertControllerError {
     }
 }
 
-public enum GrioError: Error, Equatable, AlertControllerError {
+public enum EinsteinError: Error, Equatable, AlertControllerError {
     case couldNotCreateRequest
     case genericError(Error?)
     case noData
@@ -26,7 +26,7 @@ public enum GrioError: Error, Equatable, AlertControllerError {
     case httpURLResponseError(HTTPURLResponse)
     
     public var title: String? {
-        if self == GrioError.responseAlreadyInProgress {
+        if self == EinsteinError.responseAlreadyInProgress {
             return nil
         } else {
             return "Error!"
@@ -43,7 +43,7 @@ public enum GrioError: Error, Equatable, AlertControllerError {
         }
     }
     
-    public static func == (lhs: GrioError, rhs: GrioError) -> Bool {
+    public static func == (lhs: EinsteinError, rhs: EinsteinError) -> Bool {
         switch (lhs, rhs) {
         case (.couldNotCreateRequest, couldNotCreateRequest): return true
         case (.genericError, .genericError): return true

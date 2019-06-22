@@ -3,9 +3,9 @@
 //
 //
 
+import Combine
 import Foundation
 import CoreData
-
 
 /*
 Use `PersistentContainer.shared` as your 'Core Data Stack'
@@ -27,32 +27,44 @@ public class PersistentContainer: NSPersistentContainer {
             case couldNotCastToNSManagedObjectID
         }
         
+        case unknown
         case couldNotFindModelName
+        case couldNotLoadPersistentStore(error: Swift.Error)
     }
 
-    public static let shared = try? PersistentContainer(for: Bundle.main)
     private static let batchSize = 256
+    private let dispatchQueue = DispatchQueue(from: StringKey.value(for: self))
     
-    private convenience init(for bundle: Bundle = Bundle.main) throws {
-        let bundle = PersistentContainer.findBundle() ?? Bundle.main
-
-        guard let modelName = PersistentContainer.findModelName(in: bundle!) else {
+    public convenience init(for bundle: Bundle) throws {
+        guard let modelName = PersistentContainer.findModelName(in: bundle) else {
             throw Error.couldNotFindModelName
         }
         
         self.init(name: modelName)
+        
+        var thrownError: Error?
 
-        loadPersistentStores(completionHandler: { (storeDescription, error) in
-            guard error == nil else {
-                assertionFailure("Error: \(String(describing: error))")
+        try dispatchQueue.sync { [weak self] in
+            guard let self = self else {
+                thrownError = Error.unknown
                 return
             }
-        })
-        
-        viewContext.automaticallyMergesChangesFromParent = true
-        viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-        viewContext.undoManager = nil
-        viewContext.shouldDeleteInaccessibleFaults = true
+            
+            self.loadPersistentStores(completionHandler: { (storeDescription, error) in
+                if error != nil {
+                    thrownError = .couldNotLoadPersistentStore(error: error!)
+                }
+            })
+            
+            if let error = thrownError {
+                throw error
+            }
+            
+            viewContext.automaticallyMergesChangesFromParent = true
+            viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+            viewContext.undoManager = nil
+            viewContext.shouldDeleteInaccessibleFaults = true
+        }
     }
     
     // MARK: - Helper
@@ -68,6 +80,35 @@ public class PersistentContainer: NSPersistentContainer {
     
     public func fetch<FetchableObject: NSFetchRequestResult>(_ fetchRequest: NSFetchRequest<FetchableObject>) throws -> [FetchableObject] {
         return try viewContext.fetch(fetchRequest)
+    }
+    
+    public func persistObjectFuture<ManagedObjectConvertible: NSManagedObjectConvertible>(_ object: ManagedObjectConvertible) -> Publishers.Future<Void, Error> {
+        return Publishers.Future { [weak self] (completion) in
+            guard let self = self else { fatalError() }
+
+            do {
+                try self.persistObject(object)
+                completion(.success(()))
+            } catch let error as PersistentContainer.Error {
+                completion(.failure(error))
+            } catch {
+                completion(.failure(.unknown))
+            }
+        }
+    }
+    
+    public func persistObjectsFuture<ManagedObjectConvertible: NSManagedObjectConvertible>(_ objects: [ManagedObjectConvertible]) -> Publishers.Future<Void, Error> {
+        return Publishers.Future { [weak self] (completion) in
+            guard let self = self else { fatalError() }
+            do {
+                try self.persistObjects(objects)
+                completion(.success(()))
+            } catch let error as PersistentContainer.Error {
+                completion(.failure(error))
+            } catch {
+                completion(.failure(.unknown))
+            }
+        }
     }
     
     public func persistObject<ManagedObjectConvertible: NSManagedObjectConvertible>(_ object: ManagedObjectConvertible) throws {
@@ -164,12 +205,6 @@ private extension PersistentContainer {
 // MARK: - Helpers to Find Core Data Model
 
 private extension PersistentContainer {
-    static func findBundle() -> Bundle?? {
-        let bundleContaingCoreDataModel = Bundle.allBundles.first(where: { $0.urls(forResourcesWithExtension: "momd", subdirectory: nil) != nil })
-        
-        return bundleContaingCoreDataModel
-    }
-    
     static func findModelName(in bundle: Bundle) -> String? {
         var relativeUrlString = bundle.urls(forResourcesWithExtension: "momd", subdirectory: nil)?.first?.relativeString
         relativeUrlString = relativeUrlString?.replacingOccurrences(of: ".momd", with: "")

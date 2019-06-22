@@ -3,6 +3,7 @@
 //
 //
 
+#if os(iOS)
 import Foundation
 import UIKit
 
@@ -21,6 +22,7 @@ public extension Instantiable where Self: UIViewController {
         return storyboard?.instantiateViewController(withIdentifier: identifier) as? Self
     }
 }
+#endif
 
 // MARK: - Example
 

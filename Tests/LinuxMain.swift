@@ -1,4 +1,7 @@
+
+#if !os(watchOS)
 import XCTest
+#endif
 
 import EinsteinTests
 

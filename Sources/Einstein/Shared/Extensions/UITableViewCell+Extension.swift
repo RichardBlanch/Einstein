@@ -3,6 +3,7 @@
 //
 //
 
+#if os(iOS)
 import Foundation
 import UIKit
 
@@ -11,3 +12,4 @@ public extension UITableView {
         return dequeueReusableCell(withIdentifier: String(describing: cellType), for: indexPath) as! Cell
     }
 }
+#endif

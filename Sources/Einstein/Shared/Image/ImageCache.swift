@@ -14,7 +14,7 @@ public class ImageCache {
     
     public enum Error: Swift.Error {
         case couldNotConvertData(URL)
-        case general(Swift.Error )
+        case general(Swift.Error)
         case unknown
     }
     

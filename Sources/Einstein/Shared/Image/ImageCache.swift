@@ -25,7 +25,9 @@ public class ImageCache {
     
             imageForKey
                 .sink(receiveValue: { [weak self, key] image in
-                    self?.imageMap[key] = image
+                    self?.dispatchQueue.sync {
+                        self?.imageMap[key] = image
+                    }
                 })
             
             return imageForKey

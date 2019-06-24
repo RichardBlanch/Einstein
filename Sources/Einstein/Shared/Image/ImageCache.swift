@@ -21,36 +21,48 @@ public class ImageCache {
     private var imageMap: [URL: UIImage] = [:]
     private let dispatchQueue = DispatchQueue(from: StringKey(rawValue: "com.ImageCache"))
     
-    public subscript(key: URL) -> Publishers.Future<UIImage, Error>? {
+    public subscript(url: URL) -> Publishers.Future<UIImage, Error>? {
         get {
-            let imageForKey = image(for: key)
+            let imageForKey = image(for: url)
             _ = imageForKey
-                .sink(receiveValue: { [weak self, key] image in
-                    self?.imageMap[key] = image
+                .sink(receiveValue: { [weak self, url] image in
+                    self?.dispatchQueue.sync {
+                        self?.write(image: image, for: url)
+                    }
                 })
             
             return imageForKey
         }
     }
     
-    private func image(for key: URL) -> Publishers.Future<UIImage, Error> {
+    private func image(for url: URL) -> Publishers.Future<UIImage, Error> {
         return Publishers.Future { [weak self] (completion) in
             guard let self = self else {
                 completion(.failure(Error.unknown))
                 return
             }
             
-            if let cachedImageFuture = self.imageMap[key] {
+            if let cachedImageFuture = self.readFromImageMap(for: url) {
                 completion(.success(cachedImageFuture))
             } else {
-                _ = URLSession.shared.dataTaskPublisher(for: key).sink { (dataWithResponse) in
-                    guard let fetchedImage = UIImage(data: dataWithResponse.data) else { completion(.failure(.couldNotConvertData(key)))
+                _ = URLSession.shared.dataTaskPublisher(for: url).sink { (dataWithResponse) in
+                    guard let fetchedImage = UIImage(data: dataWithResponse.data) else { completion(.failure(.couldNotConvertData(url)))
                         return
                     }
                     
                     completion(.success(fetchedImage))
                 }
             }
+        }
+    }
+    
+    private func readFromImageMap(for url: URL) -> UIImage? {
+        return dispatchQueue.sync { return imageMap[url] }
+    }
+    
+    private func write(image: UIImage, for url: URL) {
+        return dispatchQueue.sync {
+            imageMap[url] = image
         }
     }
     

@@ -18,6 +18,9 @@ public class ImageCache {
         case unknown
     }
     
+    public init() {
+    }
+    
     private var imageMap: [URL: UIImage] = [:]
     private let dispatchQueue = DispatchQueue(from: StringKey(rawValue: "com.ImageCache"))
     

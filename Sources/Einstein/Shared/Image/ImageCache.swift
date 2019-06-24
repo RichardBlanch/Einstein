@@ -5,6 +5,7 @@
 //  Created by Richard Blanchard on 6/23/19.
 //
 
+#if os(iOS)
 import Combine
 import Foundation
 import UIKit
@@ -57,3 +58,4 @@ public class ImageCache {
         return imageMap[key] != nil
     }
 }
+#endif

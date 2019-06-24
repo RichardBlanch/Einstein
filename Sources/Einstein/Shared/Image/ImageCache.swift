@@ -14,6 +14,7 @@ public class ImageCache {
     public enum Error: Swift.Error {
         case couldNotConvertData(URL)
         case general(Swift.Error )
+        case unknown
     }
     
     private var imageMap: [URL: UIImage] = [:]
@@ -22,12 +23,9 @@ public class ImageCache {
     public subscript(key: URL) -> Publishers.Future<UIImage, Error>? {
         get {
             let imageForKey = image(for: key)
-    
-            imageForKey
+            _ = imageForKey
                 .sink(receiveValue: { [weak self, key] image in
-                    self?.dispatchQueue.sync {
-                        self?.imageMap[key] = image
-                    }
+                    self?.imageMap[key] = image
                 })
             
             return imageForKey
@@ -35,13 +33,17 @@ public class ImageCache {
     }
     
     private func image(for key: URL) -> Publishers.Future<UIImage, Error> {
-        if let cachedImageFuture = self[key] {
-            return cachedImageFuture
-        } else {
-            return Publishers.Future { completion in
+        return Publishers.Future { [weak self] (completion) in
+            guard let self = self else {
+                completion(.failure(Error.unknown))
+                return
+            }
+            
+            if let cachedImageFuture = self.imageMap[key] {
+                completion(.success(cachedImageFuture))
+            } else {
                 _ = URLSession.shared.dataTaskPublisher(for: key).sink { (dataWithResponse) in
-                    guard let fetchedImage = UIImage(data: dataWithResponse.data) else {
-                        completion(.failure(.couldNotConvertData(key)))
+                    guard let fetchedImage = UIImage(data: dataWithResponse.data) else { completion(.failure(.couldNotConvertData(key)))
                         return
                     }
                     
@@ -52,6 +54,6 @@ public class ImageCache {
     }
     
     public func hasImage(for key: URL) -> Bool {
-        return self[key] != nil
+        return imageMap[key] != nil
     }
 }

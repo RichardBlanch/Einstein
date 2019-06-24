@@ -26,9 +26,7 @@ public class ImageCache {
             let imageForKey = image(for: url)
             _ = imageForKey
                 .sink(receiveValue: { [weak self, url] image in
-                    self?.dispatchQueue.sync {
-                        self?.write(image: image, for: url)
-                    }
+                    self?.write(image: image, for: url)
                 })
             
             return imageForKey

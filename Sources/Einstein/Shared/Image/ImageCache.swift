@@ -55,7 +55,9 @@ public class ImageCache {
     }
     
     private func readFromImageMap(for url: URL) -> UIImage? {
-        return dispatchQueue.sync { return imageMap[url] }
+        return dispatchQueue.sync {
+            return imageMap[url]
+        }
     }
     
     private func write(image: UIImage, for url: URL) {

@@ -39,7 +39,7 @@ public class ImageCache {
             return cachedImageFuture
         } else {
             return Publishers.Future { completion in
-                _ = URLSession.shared.dataTaskPublisher(for: key).sink { (dataWithResponse) in
+                _ = URLSession.shared.dataTaskPublisher(for: key).sink { dataWithResponse in
                     guard let fetchedImage = UIImage(data: dataWithResponse.data) else {
                         completion(.failure(.couldNotConvertData(key)))
                         return

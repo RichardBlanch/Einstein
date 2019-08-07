@@ -101,7 +101,7 @@ public extension APIRequest {
         return APIRequestPublisher(request: self, urlSession: urlSession, timeInterval: timeInterval)
     }
     
-    func future() -> APIRequestLoader.Future<Self.Output, Self.Failure> {
+    func future() -> Future<Self.Output, Self.Failure> {
         return APIRequestLoader.load(request: self)
     }
 }

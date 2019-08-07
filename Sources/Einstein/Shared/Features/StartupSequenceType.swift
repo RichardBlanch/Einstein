@@ -12,7 +12,7 @@ import Foundation
 public protocol StartupSequenceType {
     associatedtype Failure: Error
     associatedtype Success
-    static func start() -> Publishers.Future<Success, Failure>
+    static func start() -> Future<Success, Failure>
 }
 
 // MARK: - Example

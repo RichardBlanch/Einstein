@@ -82,8 +82,8 @@ public class PersistentContainer: NSPersistentContainer {
         return try viewContext.fetch(fetchRequest)
     }
     
-    public func persistObjectFuture<ManagedObjectConvertible: NSManagedObjectConvertible>(_ object: ManagedObjectConvertible) -> Publishers.Future<Void, Error> {
-        return Publishers.Future { [weak self] (completion) in
+    public func persistObjectFuture<ManagedObjectConvertible: NSManagedObjectConvertible>(_ object: ManagedObjectConvertible) -> Future<Void, Error> {
+        return Future { [weak self] (completion) in
             guard let self = self else { fatalError() }
 
             do {
@@ -97,8 +97,8 @@ public class PersistentContainer: NSPersistentContainer {
         }
     }
     
-    public func persistObjectsFuture<ManagedObjectConvertible: NSManagedObjectConvertible>(_ objects: [ManagedObjectConvertible]) -> Publishers.Future<Void, Error> {
-        return Publishers.Future { [weak self] (completion) in
+    public func persistObjectsFuture<ManagedObjectConvertible: NSManagedObjectConvertible>(_ objects: [ManagedObjectConvertible]) -> Future<Void, Error> {
+        return Future { [weak self] (completion) in
             guard let self = self else { fatalError() }
             do {
                 try self.persistObjects(objects)

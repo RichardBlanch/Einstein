@@ -24,7 +24,7 @@ public class ImageCache {
     private var imageMap: [URL: UIImage] = [:]
     private let dispatchQueue = DispatchQueue(from: StringKey(rawValue: "com.ImageCache"))
     
-    public subscript(url: URL) -> Publishers.Future<UIImage, ImageCache.Error>? {
+    public subscript(url: URL) -> Future<UIImage, ImageCache.Error>? {
         get {
             let imageForKey = image(for: url)
             _ = imageForKey
@@ -36,7 +36,7 @@ public class ImageCache {
         }
     }
     
-    private func image(for url: URL) -> Publishers.Future<UIImage, ImageCache.Error> {
+    private func image(for url: URL) -> Future<UIImage, ImageCache.Error> {
         return Publishers.Future { [weak self] (completion) in
             guard let self = self else {
                 completion(.failure(Error.unknown))

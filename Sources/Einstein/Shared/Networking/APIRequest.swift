@@ -11,8 +11,9 @@ public enum RequestType: Equatable {
     case once
 }
 
-
-
+public enum APIError: Error {
+    case generic(Error)
+}
 /// A protocol for making an API Request. Please see FetchStoriesAPIRequest which is used as an example
 /// Based off of: https://developer.apple.com/videos/play/wwdc2018/417/
 ///
@@ -20,7 +21,6 @@ public enum RequestType: Equatable {
 public protocol APIRequest {
     associatedtype Input
     associatedtype Output: Decodable
-    associatedtype Failure: Error
     
     /// This will be used to set our base url when building our `URLRequest`.
     var api: API { get }

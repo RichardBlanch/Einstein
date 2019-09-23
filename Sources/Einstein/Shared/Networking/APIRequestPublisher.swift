@@ -11,7 +11,7 @@ import Foundation
 public struct APIRequestPublisher<Request: APIRequest>: Publisher {
     
     public typealias Output = Request.Output
-    public typealias Failure = Request.Failure
+    public typealias Failure = Error
     
     private let request: Request
     private unowned let urlSession: URLSession
@@ -28,7 +28,7 @@ public struct APIRequestPublisher<Request: APIRequest>: Publisher {
 }
 
 /// A custom subscription to capture APIRequestSubscription target events.
-final class APIRequestSubscription<SubscriberType: Subscriber, Request: APIRequest> where SubscriberType.Input == Request.Output, SubscriberType.Failure == Request.Failure {
+final class APIRequestSubscription<SubscriberType: Subscriber, Request: APIRequest> where SubscriberType.Input == Request.Output, SubscriberType.Failure == Error {
     private var subscriber: SubscriberType?
     private let request: Request
     private unowned let urlSession: URLSession
@@ -52,13 +52,15 @@ final class APIRequestSubscription<SubscriberType: Subscriber, Request: APIReque
         Timer.scheduledTimer(withTimeInterval: request.pollingTime, repeats: true, block: { [weak self] _ in
             self?.makeOneTimeRequest(request)
         })
+        
+         makeOneTimeRequest(request)
     }
     
     private func makeOneTimeRequest(_ request: Request)  {
         do {
             try makeRequest(request)
-            .sink(receiveCompletion: { _ in
-                
+            .sink(receiveCompletion: { completion in
+                // self.subscriber?.receive(completion: completion)
             }, receiveValue: { [weak self] value in
                 _ = self?.subscriber?.receive(value)
                 if request.type == .once {
@@ -67,22 +69,23 @@ final class APIRequestSubscription<SubscriberType: Subscriber, Request: APIReque
             })
             .store(in: &self.subscriptions)
         } catch {
-            guard let failureReason = error as? Request.Failure else {
-                assertionFailure()
-                return
-            }
-
-            subscriber?.receive(completion: .failure(failureReason))
+            subscriber?.receive(completion: .failure(error))
         }
     }
     
-    private func makeRequest(_ request: Request) throws -> AnyPublisher<Request.Output, Error> {
+    private func makeRequest(_ request: Request) throws -> AnyPublisher<Request.Output, APIError> {
         do {
             let urlRequest = try request.makeRequest()
             
             return urlSession.dataTaskPublisher(for: urlRequest)
             .map { return $0.data }
-            .decode(type: Request.Output.self, decoder: request.jsonDecoder)
+            .mapError { return APIError.generic($0) }
+            .flatMap { data -> AnyPublisher<Request.Output, APIError>  in
+                return Just(data)
+                .decode(type: Request.Output.self, decoder: request.jsonDecoder)
+                .mapError { return APIError.generic($0) }
+                .eraseToAnyPublisher()
+            }
             .eraseToAnyPublisher()
         } catch {
             throw error

@@ -60,7 +60,7 @@ final class APIRequestSubscription<SubscriberType: Subscriber, Request: APIReque
         do {
             try makeRequest(request)
             .sink(receiveCompletion: { completion in
-                // self.subscriber?.receive(completion: completion)
+                self.subscriber?.receive(completion: completion)
             }, receiveValue: { [weak self] value in
                 _ = self?.subscriber?.receive(value)
                 if request.type == .once {
@@ -73,19 +73,13 @@ final class APIRequestSubscription<SubscriberType: Subscriber, Request: APIReque
         }
     }
     
-    private func makeRequest(_ request: Request) throws -> AnyPublisher<Request.Output, APIError> {
+    private func makeRequest(_ request: Request) throws -> AnyPublisher<Request.Output, Error> {
         do {
             let urlRequest = try request.makeRequest()
             
             return urlSession.dataTaskPublisher(for: urlRequest)
             .map { return $0.data }
-            .mapError { return APIError.generic($0) }
-            .flatMap { data -> AnyPublisher<Request.Output, APIError>  in
-                return Just(data)
-                .decode(type: Request.Output.self, decoder: request.jsonDecoder)
-                .mapError { return APIError.generic($0) }
-                .eraseToAnyPublisher()
-            }
+            .decode(type: Request.Output.self, decoder: request.jsonDecoder)
             .eraseToAnyPublisher()
         } catch {
             throw error

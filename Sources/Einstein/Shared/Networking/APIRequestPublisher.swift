@@ -60,7 +60,9 @@ final class APIRequestSubscription<SubscriberType: Subscriber, Request: APIReque
         do {
             try makeRequest(request)
             .sink(receiveCompletion: { completion in
-                self.subscriber?.receive(completion: completion)
+                if request.type == .once {
+                    self.subscriber?.receive(completion: completion)
+                }
             }, receiveValue: { [weak self] value in
                 _ = self?.subscriber?.receive(value)
                 if request.type == .once {

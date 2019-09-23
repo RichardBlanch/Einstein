@@ -97,11 +97,7 @@ final class APIRequestSubscription<SubscriberType: Subscriber, Request: APIReque
         subscriber = nil
     }
     
-    private func finish(with input: Request.Input) {
-        guard let input = input as? SubscriberType.Input else {
-            fatalError()
-        }
-
+    private func finish(with input: SubscriberType.Input) {
         _ = subscriber?.receive(input)
     }
 }

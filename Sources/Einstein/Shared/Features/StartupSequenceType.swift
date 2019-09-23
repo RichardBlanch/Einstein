@@ -4,7 +4,7 @@
 //
 //  Created by Richard Blanchard on 6/24/19.
 //
-
+/*
 import Combine
 import Foundation
 
@@ -16,7 +16,6 @@ public protocol StartupSequenceType {
 }
 
 // MARK: - Example
-/*
 
  // TODO: Come back to this.
 class StartupSequence: StartupSequenceType {

@@ -5,6 +5,7 @@
 //  Created by Richard Blanchard on 6/23/19.
 //
 
+/*
 #if os(iOS)
 import Combine
 import Foundation
@@ -36,8 +37,8 @@ public class ImageCache {
         }
     }
     
-    private func image(for url: URL) -> Future<UIImage, ImageCache.Error> {
-        return Publishers.Future { [weak self] (completion) in
+    private func image(for url: URL) -> AnyPublisher<UIImage, ImageCache.Error> {
+        return Future { [weak self] (completion) in
             guard let self = self else {
                 completion(.failure(Error.unknown))
                 return
@@ -55,6 +56,7 @@ public class ImageCache {
                 }
             }
         }
+        .eraseToAnyPublisher()
     }
     
     private func readFromImageMap(for url: URL) -> UIImage? {
@@ -74,3 +76,4 @@ public class ImageCache {
     }
 }
 #endif
+ */

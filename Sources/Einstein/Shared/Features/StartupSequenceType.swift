@@ -12,12 +12,13 @@ import Foundation
 public protocol StartupSequenceType {
     associatedtype Failure: Error
     associatedtype Success
-    static func start() -> Publishers.Future<Success, Failure>
+    static func start() -> Future<Success, Failure>
 }
 
 // MARK: - Example
 /*
 
+ // TODO: Come back to this.
 class StartupSequence: StartupSequenceType {
     typealias Failure = EinsteinError
     typealias Success = ([String], [String])

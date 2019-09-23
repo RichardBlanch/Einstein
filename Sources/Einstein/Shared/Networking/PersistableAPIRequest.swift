@@ -11,10 +11,9 @@ import Foundation
 public protocol PersistableAPIRequest: APIRequest where Self.Output: NSManagedObjectConvertible {
     
 }
-
 public extension PersistableAPIRequest {
     func fetchAndPersist(within persistentContainer: PersistentContainer) -> AnyPublisher<Void, Error> {
-        future()
+        APIRequestPublisher(request: self)
             .tryMap { try persistentContainer.persistObject($0) }
             .eraseToAnyPublisher()
     }

@@ -6,6 +6,13 @@
 import Combine
 import Foundation
 
+public enum RequestType: Equatable {
+    case continuous(TimeInterval = 30.0)
+    case once
+}
+
+
+
 /// A protocol for making an API Request. Please see FetchStoriesAPIRequest which is used as an example
 /// Based off of: https://developer.apple.com/videos/play/wwdc2018/417/
 ///
@@ -27,16 +34,17 @@ public protocol APIRequest {
     /// The query items we want to use to build our url. This will default to nil
     var queryItems: [URLQueryItem]? { get }
     
-    
     /// The `HTTPMethod` for our request. This will default to .get
     var method: HTTPMethod { get }
 
     /// Used to build the headers within our `URLRequest`. Will default to nil
     var headers: [HTTPHeader]? { get }
     
-    
     /// Used to build the body of our `URLRequest`. Will default to nil
     var body: Data? { get }
+    
+    // TODO: Give this a better name
+    var type: RequestType { get }
     
     /// If you want to explicitally build your `URLRequest`, implement this method. Otherwise, the conforming protocol will have a default implementation that derives the URLRequest from the other properties on the protocol
     ///
@@ -96,13 +104,12 @@ public extension APIRequest {
     var jsonDecoder: JSONDecoder {
         return JSONDecoder.timeIntervalSince1970Decoder
     }
-
-    func publisher(timeInterval: TimeInterval, for urlSession: URLSession) -> APIRequestPublisher<Self> {
-        return APIRequestPublisher(request: self, urlSession: urlSession, timeInterval: timeInterval)
-    }
     
-    func future() -> APIRequestLoader.Future<Self.Output, Self.Failure> {
-        return APIRequestLoader.load(request: self)
+    var pollingTime: TimeInterval {
+        switch type {
+        case .once: return TimeInterval.nan
+        case .continuous(let timeInterval): return timeInterval
+        }
     }
 }
 
